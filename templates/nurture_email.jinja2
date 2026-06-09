@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>We'd love to help you find your perfect property</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f7fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+        <!-- Header -->
+        <tr>
+            <td style="background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%); padding: 40px 30px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">SwiftClose Realty</h1>
+                <p style="color: #a3c4e8; margin: 8px 0 0; font-size: 14px;">Your Property Partner</p>
+            </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+            <td style="padding: 40px 30px;">
+                <h2 style="color: #1a365d; margin: 0 0 20px; font-size: 20px;">Hi {{ first_name }},</h2>
+
+                <p style="color: #4a5568; line-height: 1.7; margin: 0 0 16px; font-size: 15px;">
+                    Thank you for your interest in {{ interest }} properties{% if location %} in <strong>{{ location }}</strong>{% endif %}. We wanted to follow up and let you know we have some exciting options that may be a great fit for you.
+                </p>
+
+                {% if budget %}
+                <p style="color: #4a5568; line-height: 1.7; margin: 0 0 16px; font-size: 15px;">
+                    Based on your budget of <strong>{{ currency }} {{ "{:,}".format(budget|int) }}</strong>, we've identified several properties that match your criteria.
+                </p>
+                {% endif %}
+
+                <p style="color: #4a5568; line-height: 1.7; margin: 0 0 24px; font-size: 15px;">
+                    We'd love to schedule a quick call to walk you through the best options available. Our team is ready to help you find exactly what you're looking for.
+                </p>
+
+                <!-- CTA Button -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #2d5a87 0%, #1a365d 100%); border-radius: 8px;">
+                            <a href="mailto:owolabenjade@gmail.com?subject=Property%20Enquiry%20Follow-up" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600;">
+                                Schedule a Call →
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+
+        <!-- Divider -->
+        <tr>
+            <td style="padding: 0 30px;">
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 0;">
+            </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+            <td style="padding: 24px 30px; text-align: center;">
+                <p style="color: #a0aec0; font-size: 12px; margin: 0 0 8px; line-height: 1.5;">
+                    SwiftClose Realty — Helping you close, swiftly.
+                </p>
+                <p style="color: #cbd5e0; font-size: 11px; margin: 0;">
+                    You're receiving this because you enquired about a property with us.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

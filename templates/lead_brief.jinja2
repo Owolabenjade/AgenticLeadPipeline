@@ -1,0 +1,30 @@
+*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*
+🔥 *HOT LEAD BRIEF*
+*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*
+
+👤 *Contact Details*
+• Name: {{ name }}
+• Phone: {{ phone }}
+• Email: {{ email or 'Not provided' }}
+
+🏠 *Property Interest*
+• Type: {{ interest or 'Not specified' }}
+• Location: {{ location or 'Not specified' }}
+• Budget: {{ currency }} {{ "{:,}".format(budget|int) if budget else 'Not stated' }}
+
+📊 *Lead Score: {{ score }}/100* (Confidence: {{ "%.0f"|format(confidence * 100) }}%)
+• Intent: {{ intent }}
+• Timeline: {{ timeline or 'Not stated' }}
+
+📞 *Call Summary*
+{{ summary or 'No summary available' }}
+
+{% if objections %}⚠️ *Objections Raised*
+{% for obj in objections %}
+• {{ obj }}
+{% endfor %}{% endif %}
+
+✅ *Recommended Next Action*
+Schedule an in-person viewing within 48 hours. Lead has shown strong interest and confirmed budget alignment.
+
+*━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━*
