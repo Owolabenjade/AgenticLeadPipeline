@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>AI Lead Pipeline</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a84ff' stroke-width='2'><path d='M22 12h-4l-3 9L9 3l-3 9H2'/></svg>" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     LOGIN VIEW
+     ═══════════════════════════════════════ -->
+<div id="login-view">
+  <div class="login-glow"></div>
+
+  <div class="login-card">
+    <!-- Brand mark -->
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        </svg>
+      </div>
+      <div class="login-logo-text">
+        <span class="brand">LeadPipeline</span>
+        <span class="tagline">Agentic AI · v1.0</span>
+      </div>
+    </div>
+
+    <h1 class="login-heading">Welcome back.</h1>
+    <p class="login-sub">Sign in to your pipeline dashboard.</p>
+
+    <!-- Error message -->
+    <div class="login-error" id="login-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Invalid credentials.</span>
+    </div>
+
+    <!-- Login form -->
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="login-username">Username</label>
+        <input
+          class="form-input"
+          type="text"
+          id="login-username"
+          name="username"
+          placeholder="admin"
+          autocomplete="username"
+          autocapitalize="none"
+          spellcheck="false"
+        />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input
+          class="form-input"
+          type="password"
+          id="login-password"
+          name="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+      </div>
+      <button class="btn-primary" type="submit" id="login-btn">Sign In</button>
+    </form>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     DASHBOARD SHELL  (built dynamically by app.js)
+     ═══════════════════════════════════════ -->
+<div id="dashboard-view">
+  <!-- Populated by buildDashboard() in app.js -->
+</div>
+
+
+<!-- ═══════════════════════════════════════
+     TOAST NOTIFICATION
+     ═══════════════════════════════════════ -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+<!-- Scripts -->
+<script src="/static/js/app.js"></script>
+</body>
+</html>
