@@ -2,7 +2,6 @@
 
 import json
 import logging
-import os
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -15,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from execution import hubspot_client
+from execution.config import DASHBOARD_USERNAME, DASHBOARD_PASSWORD
 from execution.intake_agent import process_lead
 from execution.analysis_agent import process_transcript
 
@@ -26,8 +26,6 @@ logging.basicConfig(
 logger = logging.getLogger("main")
 
 # ── Simple credential store (replace with real auth in production) ───────
-_ADMIN_USERNAME = os.getenv("DASHBOARD_USERNAME", "admin")
-_ADMIN_PASSWORD = os.getenv("DASHBOARD_PASSWORD", "admin123")
 _VALID_TOKENS: dict[str, dict] = {}   # token → user info
 
 _BEARER = HTTPBearer(auto_error=False)
@@ -111,7 +109,7 @@ async def serve_spa():
 @app.post("/api/login")
 async def api_login(payload: LoginPayload):
     """Authenticate and return a session token."""
-    if payload.username != _ADMIN_USERNAME or payload.password != _ADMIN_PASSWORD:
+    if payload.username != DASHBOARD_USERNAME or payload.password != DASHBOARD_PASSWORD:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = f"tok-{payload.username}-{int(time.time())}"

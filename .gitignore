@@ -1,31 +1,48 @@
-# Environment
+# ── Secrets & credentials ─────────────────────────────────────
 .env
+.env.*
 credentials.json
 token.json
+*.pem
+*.key
+*.p12
+*.pfx
 
-# Intermediates
+# ── Internal docs (directives / architecture docs) ───────────
+directives/
+agents.md
+
+# ── Intermediates & temp ──────────────────────────────────────
 .tmp/
+*.tmp
 
-# Logs
+# ── Logs ─────────────────────────────────────────────────────
 logs/*.jsonl
+logs/*.log
 
-# Python
+# ── Python ───────────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 *.egg-info/
 dist/
 build/
 *.egg
 .venv/
 venv/
+env/
+.Python
 
-# IDE
+# ── IDE ───────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# ── OS ────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini

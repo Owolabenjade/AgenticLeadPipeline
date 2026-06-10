@@ -10,7 +10,7 @@
         <!-- Header -->
         <tr>
             <td style="background: linear-gradient(135deg, #1a365d 0%, #2d5a87 100%); padding: 40px 30px; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">SwiftClose Realty</h1>
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 600;">{{ company_name }}</h1>
                 <p style="color: #a3c4e8; margin: 8px 0 0; font-size: 14px;">Your Property Partner</p>
             </td>
         </tr>
@@ -38,8 +38,8 @@
                 <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
                     <tr>
                         <td style="background: linear-gradient(135deg, #2d5a87 0%, #1a365d 100%); border-radius: 8px;">
-                            <a href="mailto:owolabenjade@gmail.com?subject=Property%20Enquiry%20Follow-up" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600;">
-                                Schedule a Call →
+                            <a href="mailto:{{ contact_email }}?subject=Property%20Enquiry%20Follow-up" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 600;">
+                                Schedule a Call &rarr;
                             </a>
                         </td>
                     </tr>
@@ -58,7 +58,7 @@
         <tr>
             <td style="padding: 24px 30px; text-align: center;">
                 <p style="color: #a0aec0; font-size: 12px; margin: 0 0 8px; line-height: 1.5;">
-                    SwiftClose Realty — Helping you close, swiftly.
+                    {{ company_name }} &mdash; Helping you close, swiftly.
                 </p>
                 <p style="color: #cbd5e0; font-size: 11px; margin: 0;">
                     You're receiving this because you enquired about a property with us.

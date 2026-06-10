@@ -53,6 +53,14 @@ SLACK_WEBHOOK_HOT_LEADS: str = _require("SLACK_WEBHOOK_HOT_LEADS")
 SLACK_WEBHOOK_SYSTEM_ALERTS: str = _require("SLACK_WEBHOOK_SYSTEM_ALERTS")
 SLACK_SALES_HEAD_ID: str = _require("SLACK_SALES_HEAD_ID")
 
+# ── Dashboard auth ──────────────────────────────────────────────────────
+DASHBOARD_USERNAME: str = os.getenv("DASHBOARD_USERNAME", "admin")
+DASHBOARD_PASSWORD: str = _require("DASHBOARD_PASSWORD")
+
+# ── Company / branding ──────────────────────────────────────────────────
+COMPANY_NAME: str    = os.getenv("COMPANY_NAME", "Lead Pipeline")
+CONTACT_EMAIL: str   = os.getenv("CONTACT_EMAIL", "")
+
 # ── Derived constants ──────────────────────────────────────────────────
 HUBSPOT_API_BASE: str = "https://api.hubapi.com"
 LEAD_SESSION_TTL: int = 86_400        # 24 hours
