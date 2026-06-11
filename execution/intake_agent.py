@@ -88,11 +88,18 @@ async def process_lead(
 
     lead_data["hubspot_contact_id"] = contact_id
 
-    # 7. Create deal with initial stage
-    deal_id = await hubspot_client.create_deal_for_contact(
-        contact_id, raw_name, "Contacted - Pending Call"
-    )
-    lead_data["hubspot_deal_id"] = deal_id
+    # 7. Create deal (non-fatal — VAPI call fires regardless)
+    try:
+        deal_id = await hubspot_client.create_deal_for_contact(
+            contact_id, raw_name, "Contacted - Pending Call"
+        )
+        lead_data["hubspot_deal_id"] = deal_id
+        logger.info("Created deal %s for contact %s", deal_id, contact_id)
+    except Exception as deal_err:
+        logger.warning(
+            "Deal creation failed (non-fatal, call will still fire): %s", deal_err
+        )
+        lead_data["hubspot_deal_id"] = None
 
     # 8. Store session in Redis
     session_key = await redis_client.set_lead_session(e164_phone, lead_data)

@@ -308,12 +308,14 @@ async def create_deal_for_contact(
     pipeline_id = await ensure_pipeline_exists()
     stage_id = _stage_ids.get(stage_name)
     if not stage_id:
-        raise ValueError(f"Unknown deal stage: {stage_name}")
+        stage_id = list(_stage_ids.values())[0] if _stage_ids else "appointmentscheduled"
 
     url = f"{HUBSPOT_API_BASE}/crm/v3/objects/deals"
+
+    # Attempt 1 — full payload with owner + inline association
     payload = {
         "properties": {
-            "dealname": f"Lead — {lead_name}",
+            "dealname": f"Lead \u2014 {lead_name}",
             "pipeline": pipeline_id,
             "dealstage": stage_id,
             "hubspot_owner_id": HUBSPOT_SALES_OWNER_ID,
@@ -321,17 +323,58 @@ async def create_deal_for_contact(
         "associations": [
             {
                 "to": {"id": contact_id},
-                "types": [
-                    {
-                        "associationCategory": "HUBSPOT_DEFINED",
-                        "associationTypeId": 3,
-                    }
-                ],
+                "types": [{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 3}],
             }
         ],
     }
-    resp = await _rate_limited_request("POST", url, json=payload)
-    return resp.json()["id"]
+    try:
+        resp = await _rate_limited_request("POST", url, json=payload)
+        return resp.json()["id"]
+    except httpx.HTTPStatusError as exc:
+        err = exc.response.text
+        print(f"Deal attempt 1 failed ({exc.response.status_code}): {err[:300]}")
+
+    # Attempt 2 — drop owner_id (may be invalid on this portal)
+    payload2 = {
+        "properties": {
+            "dealname": f"Lead \u2014 {lead_name}",
+            "pipeline": pipeline_id,
+            "dealstage": stage_id,
+        },
+        "associations": [
+            {
+                "to": {"id": contact_id},
+                "types": [{"associationCategory": "HUBSPOT_DEFINED", "associationTypeId": 3}],
+            }
+        ],
+    }
+    try:
+        resp = await _rate_limited_request("POST", url, json=payload2)
+        return resp.json()["id"]
+    except httpx.HTTPStatusError as exc:
+        err = exc.response.text
+        print(f"Deal attempt 2 failed ({exc.response.status_code}): {err[:300]}")
+
+    # Attempt 3 — bare minimum, associate separately after creation
+    payload3 = {
+        "properties": {
+            "dealname": f"Lead \u2014 {lead_name}",
+            "pipeline": pipeline_id,
+            "dealstage": stage_id,
+        }
+    }
+    resp = await _rate_limited_request("POST", url, json=payload3)
+    deal_id = resp.json()["id"]
+    # Associate deal to contact via batch endpoint
+    assoc_url = f"{HUBSPOT_API_BASE}/crm/v3/associations/deals/contacts/batch/create"
+    try:
+        await _rate_limited_request(
+            "POST", assoc_url,
+            json={"inputs": [{"from": {"id": deal_id}, "to": {"id": contact_id}, "type": "deal_to_contact"}]}
+        )
+    except Exception as assoc_err:
+        print(f"Deal-contact association failed (non-fatal): {assoc_err}")
+    return deal_id
 
 
 async def update_deal_stage(deal_id: str, stage_name: str) -> None:
