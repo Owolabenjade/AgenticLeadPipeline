@@ -162,9 +162,16 @@ async function fetchLeads() {
     const res = await fetch('/api/leads', {
       headers: { Authorization: `Bearer ${State.token}` },
     });
-    if (res.ok) return await res.json();
-  } catch {}
-  return generateMockLeads();
+    if (res.ok) {
+      const data = await res.json();
+      // Always return real data — empty array is valid (no leads yet)
+      return Array.isArray(data) ? data : [];
+    }
+  } catch (err) {
+    console.warn('fetchLeads error:', err);
+  }
+  // Only fall back to mock if the server itself is unreachable (not running)
+  return State.token === 'demo-token' ? generateMockLeads() : [];
 }
 
 async function fetchStats() {
@@ -182,9 +189,12 @@ async function fetchAlerts() {
     const res = await fetch('/api/alerts', {
       headers: { Authorization: `Bearer ${State.token}` },
     });
-    if (res.ok) return await res.json();
+    if (res.ok) {
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    }
   } catch {}
-  return generateMockAlerts();
+  return State.token === 'demo-token' ? generateMockAlerts() : [];
 }
 
 async function triggerAction(action, sessionKey) {
