@@ -4,7 +4,7 @@ import logging
 
 from execution import redis_client
 from execution.groq_client import generate_call_script
-from execution.vapi_client import trigger_outbound_call, VAPICallError
+from execution.vapi_client import trigger_outbound_call, VAPICallError, VAPIInternationalError
 from execution.monitor_agent import monitor
 
 logger = logging.getLogger("call_agent")
@@ -44,12 +44,25 @@ async def dispatch_call_agent(
         # 3. Set call_pending flag in Redis (2-hour TTL)
         await redis_client.set_call_pending(session_key)
 
+    except VAPIInternationalError as exc:
+        # Free VAPI plan can't call international numbers — log clearly and skip
+        # The rest of the pipeline (nurture email, HubSpot update) still runs
+        logger.warning(
+            "VAPI international call blocked for %s (%s). "
+            "Fix: import a Twilio NG number into VAPI dashboard. Error: %s",
+            lead_name, lead_phone, exc,
+        )
+        lead_data["call_status"] = "skipped_international"
+        lead_data["call_error"] = (
+            "Free VAPI plan cannot call Nigerian numbers. "
+            "Import a Twilio number at vapi.ai/phone-numbers → Import → Twilio."
+        )
+
     except VAPICallError as exc:
-        # Log to Monitor Agent and skip call stage — don't block the pipeline
+        # Other VAPI errors — log and skip call, pipeline continues
         logger.error("VAPI call failed for %s: %s", lead_name, exc)
         lead_data["call_status"] = "failed"
         lead_data["call_error"] = str(exc)
-        return lead_data
 
     lead_data["call_status"] = "initiated"
     return lead_data

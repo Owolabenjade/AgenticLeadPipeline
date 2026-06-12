@@ -245,60 +245,76 @@ _stage_ids: dict[str, str] = {}
 
 
 async def ensure_pipeline_exists() -> str:
-    """Create the deal pipeline and stages if they don't exist. Returns pipeline ID."""
+    """
+    Resolve the deal pipeline to use. Strategy:
+    1. Return cached value if already resolved.
+    2. Fetch all pipelines from HubSpot and use the first one found
+       (avoids trying to CREATE a pipeline, which requires a paid plan).
+    3. Map our logical stage names to the real stage IDs from that pipeline.
+    4. Fall back to hard-coded IDs from the portal if fetch fails.
+    """
     global _pipeline_id, _stage_ids
 
     if _pipeline_id:
         return _pipeline_id
 
+    # Hard-coded fallback using the real stage IDs from Benjamin's portal
+    # (from debug_hubspot.py output — "Buyers pipeline", id=default)
+    _FALLBACK_STAGE_MAP = {
+        "Contacted - Pending Call": "5506141375",  # Buyer qualification
+        "Sales Qualified":          "5506141376",  # Property selection
+        "Nurturing":                "5506141377",  # Property viewing
+        "Long-term Nurture":        "5506141378",  # Offer draft
+        "Closed Won":               "5506141381",  # Property sold/closed won
+        "Closed Lost":              "5506141382",  # Closed lost
+    }
+
     try:
-        # Check if pipeline already exists
         url = f"{HUBSPOT_API_BASE}/crm/v3/pipelines/deals"
         resp = await _rate_limited_request("GET", url)
         pipelines = resp.json().get("results", [])
 
-        for p in pipelines:
-            if p["label"] == _PIPELINE_NAME:
-                _pipeline_id = p["id"]
-                for stage in p.get("stages", []):
-                    _stage_ids[stage["label"]] = stage["id"]
-                return _pipeline_id
+        if not pipelines:
+            _pipeline_id = "default"
+            _stage_ids = _FALLBACK_STAGE_MAP
+            return _pipeline_id
 
-        # Create pipeline with stages
-        stages_payload = [
-            {
-                "label": info["label"],
-                "displayOrder": info["displayOrder"],
-                "metadata": {"probability": "0.2" if info["displayOrder"] < 4 else ("1.0" if info["label"] == "Closed Won" else "0.0")},
-            }
-            for info in _DEAL_STAGES.values()
-        ]
-        create_payload = {
-            "label": _PIPELINE_NAME,
-            "displayOrder": 0,
-            "stages": stages_payload,
+        # Use the first pipeline — no creation attempt
+        chosen = pipelines[0]
+        _pipeline_id = chosen["id"]
+
+        # Build a map from our logical names to real stage IDs
+        # by matching on label keywords
+        real_stages = {s["label"]: s["id"] for s in chosen.get("stages", [])}
+
+        keyword_map = {
+            "Contacted - Pending Call": ["qualification", "new", "contact", "pending"],
+            "Sales Qualified":          ["selection", "qualified", "hot"],
+            "Nurturing":                ["viewing", "nurtur", "warm"],
+            "Long-term Nurture":        ["offer", "long", "cold"],
+            "Closed Won":               ["won", "sold", "closed won"],
+            "Closed Lost":              ["lost", "closed lost"],
         }
-        resp = await _rate_limited_request("POST", url, json=create_payload)
-        result = resp.json()
-        _pipeline_id = result["id"]
-        for stage in result.get("stages", []):
-            _stage_ids[stage["label"]] = stage["id"]
+
+        for logical_name, keywords in keyword_map.items():
+            matched = False
+            for real_label, real_id in real_stages.items():
+                if any(kw in real_label.lower() for kw in keywords):
+                    _stage_ids[logical_name] = real_id
+                    matched = True
+                    break
+            if not matched:
+                # Fallback: use the hard-coded ID for this logical stage
+                _stage_ids[logical_name] = _FALLBACK_STAGE_MAP.get(logical_name, "5506141375")
 
         return _pipeline_id
+
     except httpx.HTTPStatusError as exc:
-        if exc.response.status_code in (403, 401):
-            # Fallback to default pipeline
-            _pipeline_id = "default"
-            _stage_ids = {
-                "Contacted - Pending Call": "appointmentscheduled",
-                "Sales Qualified": "qualifiedtobuy",
-                "Nurturing": "presentationscheduled",
-                "Long-term Nurture": "decisionmakerinvoiced",
-                "Closed Won": "closedwon",
-                "Closed Lost": "closedlost"
-            }
-            return _pipeline_id
-        raise
+        # Any HTTP error — fall back to known-good portal values
+        print(f"Pipeline fetch failed ({exc.response.status_code}), using hard-coded fallback stage IDs")
+        _pipeline_id = "default"
+        _stage_ids = _FALLBACK_STAGE_MAP
+        return _pipeline_id
 
 
 async def create_deal_for_contact(
